@@ -6,7 +6,7 @@ import time
 from contextlib import contextmanager
 from datetime import datetime
 
-import py
+from .terminalwriter import TerminalWriter
 
 
 class Verbosity(object):
@@ -35,7 +35,7 @@ class Reporter(object):
         self.verbose_level = verbose_level
         self.quiet_level = quiet_level
         self.reported_lines = []
-        self.tw = py.io.TerminalWriter()
+        self.tw = TerminalWriter()
 
     @property
     def verbosity(self):
