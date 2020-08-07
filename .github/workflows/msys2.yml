@@ -1,0 +1,153 @@
+name: 'msys2'
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  # Expected error: `pip: command not found`
+  msys2-pip:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: git
+
+    - run: |
+        pip install -U tox --progress-bar off
+        tox -rvv -e py36
+
+
+  # Expected error: `The 'virtualenv...' distribution was not found and is required by tox`
+  msys2-pacman-tox:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >
+          git
+          mingw-w64-x86_64-python-colorama
+          mingw-w64-x86_64-python-tox
+
+    - run: tox -rvv -e py36
+
+
+  msys2-pacman-virtualenv:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >
+          git
+          mingw-w64-x86_64-python-pip
+          mingw-w64-x86_64-python-wheel
+          mingw-w64-x86_64-python-virtualenv
+
+    - run: |
+        pip install -U . --progress-bar off
+        tox -rvv -e py36
+
+
+  msys2:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >
+          git
+          mingw-w64-x86_64-python-pip
+          mingw-w64-x86_64-python-wheel
+
+    - run: |
+        pip install -U virtualenv --progress-bar off
+        pip install -U . --progress-bar off
+        tox -rvv -e py36
+
+
+  msys2-venv:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: git mingw-w64-x86_64-python-pip mingw-w64-x86_64-python-wheel
+
+    - run: |
+        python -m venv _venv
+        source _venv/bin/activate
+        pip install -U . --progress-bar off
+        tox -rvv -e py36
+
+
+  msys2-user:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >
+          git
+          mingw-w64-x86_64-python-pip
+          mingw-w64-x86_64-python-wheel
+
+    - run: |
+        pip install --user -U . --progress-bar off
+        /c/Users/runneradmin/.local/bin/tox -rvv -e py36
+
+
+  powershell:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
+
+    - run: |
+        pip install -U pip --progress-bar off
+        pip install -U virtualenv --progress-bar off
+        pip install -U . --progress-bar off
+
+    - run: tox -rvv -e py36
